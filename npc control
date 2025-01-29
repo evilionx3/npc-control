@@ -1,12 +1,39 @@
--- by evilionx3
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/evilionx3/npc-control/refs/heads/main/part%20claim"))() 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/evilionx3/discord/refs/heads/main/r"))()
+-- this code is so skidded, im sorry for whoever has to read this source
+-- hence why i didnt obfuscate this ^^
+local IsOnMobile = table.find({Enum.Platform.IOS, Enum.Platform.Android}, game.UserInputService:GetPlatform())
+Players = game.Players
+function noSitFunc()
+	wait()
+	if Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid").Sit then
+		Players.LocalPlayer.Character:FindFirstChildWhichIsA("Humanoid").Sit = false
+	end
+end
+noSit = Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid'):GetPropertyChangedSignal("Sit"):Connect(noSitFunc)
+
+-- by evilionx3
 local isR15 = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").RigType == Enum.HumanoidRigType.R15
 
 if isR15 then
 msg = Instance.new("Message")
 msg.Parent = game.Workspace
 msg.Text = "r15 isnt supported"
+wait(4)
+msg:Destroy()
+elseif IsOnMobile then
+    msg = Instance.new("Message")
+msg.Parent = game.Workspace
+msg.Text = "mobile isnt supported, sorry :/"
+wait(4)
+msg:Destroy()
 else
+msg = Instance.new("Message")
+msg.Parent = game.Workspace
+msg.Text = "npc control loading, click on a npc to control"
+wait(2)
+msg:Destroy()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/evilionx3/npc-control/refs/heads/main/part%20claim"))() 
 local lp = game.Players.LocalPlayer
 local c = lp.Character or lp.CharacterAdded:Wait()
@@ -80,9 +107,41 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
         onClick(target)
     end
 end)
+local player = game.Players.LocalPlayer
+local character = player.Character
+
+-- Make all parts transparent and remove decals
+for _, part in ipairs(character:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.Transparency = 1
+    end
+    
+    -- Remove any decals
+    if part:IsA("Decal") then
+        part:Destroy()
+    end
+end
+game.Players.LocalPlayer.Character.DescendantAdded:Connect(function(descendant)
+    local character = player.Character
+
+-- Make all parts transparent and remove decals
+for _, part in ipairs(character:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.Transparency = 1
+    end
+    
+    -- Remove any decals
+    if part:IsA("Decal") then
+        part:Destroy()
+    end
+end
+end)
+-- Wait for the character to load
 
 -- Run the function constantly
 while task.wait() do
+	game.Players.LocalPlayer.Character.Head.CanCollide = false
+	game.Players.LocalPlayer.Character.Torso.CanCollide = false
     updateNPCMovement()
     humanoid.HipHeight = height
     humanoid.JumpPower = 20
