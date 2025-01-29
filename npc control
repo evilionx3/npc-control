@@ -1,0 +1,97 @@
+-- by evilionx3
+
+local isR15 = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").RigType == Enum.HumanoidRigType.R15
+
+if isR15 then
+msg = Instance.new("Message")
+msg.Parent = game.Workspace
+msg.Text = "r15 isnt supported"
+else
+loadstring(game:HttpGet("https://raw.githubusercontent.com/evilionx3/npc-control/refs/heads/main/part%20claim"))() 
+local lp = game.Players.LocalPlayer
+local c = lp.Character or lp.CharacterAdded:Wait()
+local hrp0 = c:FindFirstChild("HumanoidRootPart")
+local hrp1 = hrp0:Clone()
+
+c.Parent = nil
+hrp0.Parent = hrp1
+hrp0.RootJoint.Part0 = nil
+hrp1.Parent = c
+c.Parent = workspace
+
+local animId = "rbxassetid://215384594"
+local anim = Instance.new("Animation")
+anim.AnimationId = animId
+local humanoid = c:WaitForChild("Humanoid")
+local animTrack = humanoid:LoadAnimation(anim)
+    
+local players = game:GetService("Players")
+local player = players.LocalPlayer
+local workspace = game:GetService("Workspace")
+
+local followingNPC = nil
+local activeNPCs = {}
+
+local function getChar()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function moveNPCToPlayer(npcHumanoid)
+    local playerCharacter = getChar()
+    if not playerCharacter then return end
+
+    local playerRootPart = playerCharacter:FindFirstChild("HumanoidRootPart")
+    if not playerRootPart then return end
+
+    if npcHumanoid and npcHumanoid.Parent then
+        local rootPart = npcHumanoid.Parent:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            local targetPos = playerRootPart.Position
+            npcHumanoid:MoveTo(targetPos)
+            npcHumanoid.WalkSpeed = playerCharacter.Humanoid.WalkSpeed
+        end
+    end
+end
+
+local function onClick(target)
+    if target and target.Parent then
+        local hum = target.Parent:FindFirstChildOfClass("Humanoid")
+        if hum and not players:GetPlayerFromCharacter(hum.Parent) then
+            if followingNPC then
+                activeNPCs[followingNPC] = nil -- Remove movement from previous NPC
+            end
+            followingNPC = hum
+            activeNPCs[followingNPC] = true -- Add new NPC to active movement list
+        end
+    end
+end
+
+local function updateNPCMovement()
+    for npc, _ in pairs(activeNPCs) do
+        moveNPCToPlayer(npc)
+    end
+end
+
+-- Detect mouse clicks to select NPCs
+local userInputService = game:GetService("UserInputService")
+userInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local target = player:GetMouse().Target
+        onClick(target)
+    end
+end)
+
+-- Run the function constantly
+while task.wait() do
+    updateNPCMovement()
+    humanoid.HipHeight = height
+    humanoid.JumpPower = 20
+    animTrack:Play()
+    animTrack:AdjustSpeed(0)
+    animTrack.TimePosition = 0.4
+    hrp0.CFrame = hrp1.CFrame 
+    hrp0.Orientation = Vector3.new(90, 0, 0)
+    hrp0.Position = hrp1.Position - Vector3.new(0, hrp0.Size.Y / 2, 0) 
+    hrp0.Velocity = hrp1.Velocity
+end
+end
